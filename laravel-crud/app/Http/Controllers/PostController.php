@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Post;
+use App\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +28,8 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('posts/create');
+        $categories = Category::all();
+        return view('posts/create', compact('categories'));
     }
 
     /**
@@ -40,7 +42,7 @@ class PostController extends Controller
     {
         $title = $request->title;
         $content = $request->content;
-        $category_id = 1;
+        $category_id = $request->category_id;
 
         $post = Post::create([
             "title" => $title,
@@ -72,7 +74,8 @@ class PostController extends Controller
     public function edit(Post $post, $id)
     {
         $post = Post::where('id', $id)->first();
-        return view('posts/edit', compact('post'));
+        $categories = Category::all();
+        return view('posts/edit', compact('post', 'categories'));
     }
 
     /**
@@ -84,6 +87,12 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post, $id)
     {
+        Post::where('id', $id)
+            ->update([
+                'title' => $request->title,
+                'content' => $request->content,
+                'category_id' => $request->category_id
+                ]);
         return "Update {$id} post";
     }
 
@@ -95,6 +104,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post, $id)
     {
+        Post::destroy($id);
         return "Delete single post";
     }
 }
